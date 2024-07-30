@@ -7,9 +7,10 @@ type Props = {
   children: string;
   size?: number;
   color?: string;
+  textAlign?: "center" | "left" | "right";
 };
 
-export const Text = ({ children, color, size }: Props) => {
+export const Text = ({ children, color, size, textAlign }: Props) => {
   const theme = useAppSelector((state) => state.theme);
 
   let [fontsLoaded] = useFonts({
@@ -23,6 +24,7 @@ export const Text = ({ children, color, size }: Props) => {
   return (
     <>
       <BaseText
+        textAlign={textAlign ?? "left"}
         fontFamily="DoppioOne_400Regular"
         size={size ?? theme.fontSizes.medium}
         color={color ?? theme.colors.white}

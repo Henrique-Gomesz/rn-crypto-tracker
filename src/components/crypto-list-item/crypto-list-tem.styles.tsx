@@ -30,7 +30,5 @@ export const TrailingItemTitle = styled(Text)``;
 
 export const TrailingItemSubtitle = styled(Text).attrs({
   size: 12,
-})`
-  flex: 1;
-  background-color: blue;
-`;
+  textAlign: "right",
+})``;
