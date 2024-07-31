@@ -1,10 +1,10 @@
 import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
 import { Provider } from "react-redux";
+import { HomeScreen } from "src/home/screens/home";
 import { store } from "src/store/store";
 import "./gesture-handler";
 import { RootStack } from "./src/navigation/app-navigator";
-import { HomeScreen } from "src/home/screens/home";
 
 export default function App() {
   return (

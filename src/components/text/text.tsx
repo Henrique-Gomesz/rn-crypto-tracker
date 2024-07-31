@@ -4,7 +4,7 @@ import { useAppSelector } from "src/hooks/store-hook";
 import { useFonts, DoppioOne_400Regular } from "@expo-google-fonts/doppio-one";
 
 type Props = {
-  children: string;
+  children: React.ReactNode | undefined;
   size?: number;
   color?: string;
   textAlign?: "center" | "left" | "right";

@@ -10,6 +10,9 @@ interface ThemeState {
     darkGreen: string;
     darkGray: string;
     lightGreen: string;
+    beige: string;
+    lightGray: string;
+    secondaryDarkGray: string;
   };
   fontSizes: {
     small: number;
@@ -27,7 +30,10 @@ const initialState: ThemeState = {
     white: "#FFFFFF",
     lightGreen: "#01FFB7",
     darkGreen: "#125549",
+    secondaryDarkGray: "#8883A3",
     darkGray: "#302D40",
+    lightGray: "#C7C7C7",
+    beige: "#F4E0E0",
   },
   fontSizes: {
     small: 14,

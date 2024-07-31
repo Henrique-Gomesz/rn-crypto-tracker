@@ -11,26 +11,40 @@ import {
 } from "./crypto-list-tem.styles";
 
 import { Image } from "expo-image";
+import { Crypto } from "src/entities/crypto";
+import { getImageUrlByName } from "src/utils/get-image-name";
+type Props = {
+  crypto: Crypto;
+  onPress: (crypto: Crypto) => void;
+  textColor?: string;
+};
 
-export const CryptoListItem = () => {
+export const CryptoListItem = ({ crypto, onPress, textColor }: Props) => {
   return (
-    <Container>
+    <Container onPress={() => onPress(crypto)}>
       <LeadingItemContainer>
         <Image
+          cachePolicy={"disk"}
           style={{ width: 52, height: 52 }}
           source={{
-            uri: "https://s2.coinmarketcap.com/static/img/coins/128x128/1.png",
+            uri: getImageUrlByName(crypto.name),
           }}
           contentFit="cover"
         />
         <LeadingItemContentContainer>
-          <LeadingItemTitle>{"Bitcoin"}</LeadingItemTitle>
-          <LeadingItemSubtitle>{"BTC"}</LeadingItemSubtitle>
+          <LeadingItemTitle color={textColor}>{crypto.name}</LeadingItemTitle>
+          <LeadingItemSubtitle color={textColor}>
+            {crypto.symbol}
+          </LeadingItemSubtitle>
         </LeadingItemContentContainer>
       </LeadingItemContainer>
       <TrailingItemContentContainer>
-        <TrailingItemTitle>{"$1500,00"}</TrailingItemTitle>
-        <TrailingItemSubtitle>{"1%"}</TrailingItemSubtitle>
+        <TrailingItemTitle color={textColor}>
+          {crypto.priceUsd}
+        </TrailingItemTitle>
+        <TrailingItemSubtitle color={textColor}>
+          {crypto.changePercent24Hr}
+        </TrailingItemSubtitle>
       </TrailingItemContentContainer>
     </Container>
   );

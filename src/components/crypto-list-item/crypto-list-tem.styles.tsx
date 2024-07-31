@@ -1,8 +1,8 @@
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import styled from "styled-components";
 import { Text } from "../text/text";
 
-export const Container = styled(View)`
+export const Container = styled(TouchableOpacity)`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
