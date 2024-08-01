@@ -26,6 +26,8 @@ export const TextFieldContainer = styled(View)`
 
 export const CryptoListContainer = styled(View)`
   margin-top: 24px;
+  margin-bottom: 24px;
+  flex: 1;
 `;
 
 export const CryptoList = styled(FlatList)``;

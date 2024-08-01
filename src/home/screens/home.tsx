@@ -1,5 +1,5 @@
 import BottomSheet from "@gorhom/bottom-sheet";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getCryptos } from "src/actions/get-cryptos";
 import { AddButton } from "src/components/add-button/add-button";
 import { Screen } from "src/components/screen/screen";
@@ -13,24 +13,25 @@ import {
 } from "./home-styles";
 import { addUserCrypto } from "src/store/app/app-store";
 import { Crypto } from "src/entities/crypto";
-import { FlatList } from "react-native";
+import { FlatList, Keyboard } from "react-native";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Separator } from "src/components/separator/separator";
-
+import Toast from "react-native-root-toast";
 export const HomeScreen = () => {
+  const [searchText, setSearchText] = useState("");
+
+  const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.theme);
   const userCryptos = useAppSelector((state) => state.app.userCryptos);
 
-  const dispatch = useAppDispatch();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     dispatch(getCryptos());
   }, []);
 
-  function onItemPress(crypto: Crypto) {
-    dispatch(addUserCrypto(crypto));
-    closeCryptoSearch();
+  function handleSearch(text: string) {
+    setSearchText(text);
   }
 
   function openCryptoSearch() {
@@ -38,13 +39,35 @@ export const HomeScreen = () => {
   }
 
   function closeCryptoSearch() {
-    bottomSheetRef.current?.close();
+    setTimeout(() => {
+      Keyboard.dismiss();
+    }, 200);
+    handleSearch("");
+
+    bottomSheetRef.current?.forceClose();
+  }
+
+  function cryptoAlreadyTracked(crypto: Crypto) {
+    return userCryptos.some((userCrypto) => userCrypto.id === crypto.id);
+  }
+
+  function onItemPress(crypto: Crypto) {
+    if (cryptoAlreadyTracked(crypto)) {
+      Toast.show("Crypto already tracked!", {
+        position: Toast.positions.BOTTOM,
+        duration: Toast.durations.SHORT,
+      });
+      return;
+    }
+
+    closeCryptoSearch();
+    dispatch(addUserCrypto(crypto));
   }
 
   return (
     <Screen>
       <HeaderContainer>
-        <Text size={20}>{"Crypto Tracker"}</Text>
+        <Text size={20}>{"RN Crypto Tracker"}</Text>
         <AddButton onPress={openCryptoSearch} />
       </HeaderContainer>
       <CryptoListContainer>
@@ -62,11 +85,10 @@ export const HomeScreen = () => {
           data={userCryptos}
         />
       </CryptoListContainer>
-      <CryptoBottomSheet
-        handleColor={theme.colors.darkGray}
-        ref={bottomSheetRef}
-      >
+      <CryptoBottomSheet ref={bottomSheetRef}>
         <SearchCryptoSheet
+          searchValue={searchText}
+          handleSearch={handleSearch}
           onItemPress={onItemPress}
           onClose={closeCryptoSearch}
         />

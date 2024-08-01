@@ -2,10 +2,6 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { View } from "react-native";
 import styled from "styled-components";
 
-type BottomSheetProps = {
-  handleColor: string;
-};
-
 export const HeaderContainer = styled(View)`
   flex-direction: row;
   justify-content: space-between;
@@ -17,11 +13,10 @@ export const CryptoListContainer = styled(View)`
   flex: 1;
 `;
 
-export const CryptoBottomSheet = styled(BottomSheet).attrs<BottomSheetProps>(
-  ({ handleColor }) => ({
-    enablePanDownToClose: false,
-    snapPoints: ["95%"],
-    enableHandlePanningGesture: false,
-    enableContentPanningGesture: true,
-  })
-)<BottomSheetProps>``;
+export const CryptoBottomSheet = styled(BottomSheet).attrs(() => ({
+  enablePanDownToClose: false,
+  index: -1,
+  snapPoints: ["95%"],
+  enableHandlePanningGesture: false,
+  enableContentPanningGesture: false,
+}))``;

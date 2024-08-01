@@ -1,10 +1,11 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import React, { useMemo, useState } from "react";
-import { FlatList } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { FlatList, KeyboardAvoidingView, Platform } from "react-native";
+import { Crypto } from "src/entities/crypto";
 import { useAppSelector } from "src/hooks/store-hook";
-import { getImageUrlByName } from "src/utils/get-image-name";
 import { CryptoListItem } from "../crypto-list-item/crypto-list-item";
 import { DismissKeyboard } from "../dismiss-keyboard/dismiss-keyboard";
+import { Separator } from "../separator/separator";
 import { TextField } from "../text-field/text-field";
 import {
   Container,
@@ -14,22 +15,31 @@ import {
   Title,
   TitleContainer,
 } from "./search-crypto-sheet.styles";
-import { Separator } from "../separator/separator";
-import { Crypto } from "src/entities/crypto";
+import { isEmpty } from "lodash";
 
 type Props = {
   onClose: () => void;
   onItemPress: (crypto: Crypto) => void;
+  searchValue: string;
+  handleSearch: (text: string) => void;
 };
 
-export const SearchCryptoSheet = ({ onClose, onItemPress }: Props) => {
+export const SearchCryptoSheet = ({
+  onClose,
+  onItemPress,
+  handleSearch,
+  searchValue,
+}: Props) => {
   const cryptos = useAppSelector((state) => state.app.cryptos);
-  const [searchText, setSearchText] = useState("");
   const theme = useAppSelector((state) => state.theme);
 
-  function handleSearch(text: string) {
-    setSearchText(text);
-  }
+  const queryData = useMemo(() => {
+    return cryptos.filter(
+      (crypto) =>
+        crypto.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        crypto.symbol.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [searchValue]);
 
   return (
     <DismissKeyboard>
@@ -42,7 +52,7 @@ export const SearchCryptoSheet = ({ onClose, onItemPress }: Props) => {
         </TitleContainer>
         <TextFieldContainer>
           <TextField
-            value={searchText}
+            value={searchValue}
             onChangeText={handleSearch}
             placeholder="Bitcoin, Ethereum, Doge"
           />
@@ -61,7 +71,7 @@ export const SearchCryptoSheet = ({ onClose, onItemPress }: Props) => {
                 crypto={item.item}
               />
             )}
-            data={cryptos}
+            data={isEmpty(searchValue) ? [] : queryData}
           />
         </CryptoListContainer>
       </Container>
