@@ -1,6 +1,7 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import React, { useCallback, useMemo, useState } from "react";
-import { FlatList, KeyboardAvoidingView, Platform } from "react-native";
+import { isEmpty } from "lodash";
+import React, { useMemo } from "react";
+
 import { Crypto } from "src/entities/crypto";
 import { useAppSelector } from "src/hooks/store-hook";
 import { CryptoListItem } from "../crypto-list-item/crypto-list-item";
@@ -15,7 +16,7 @@ import {
   Title,
   TitleContainer,
 } from "./search-crypto-sheet.styles";
-import { isEmpty } from "lodash";
+import { FlatList } from "react-native-gesture-handler";
 
 type Props = {
   onClose: () => void;
@@ -59,6 +60,7 @@ export const SearchCryptoSheet = ({
         </TextFieldContainer>
         <CryptoListContainer>
           <FlatList
+            showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => (
               <Separator backgroundColor={theme.colors.lightGray} />
             )}
@@ -66,6 +68,7 @@ export const SearchCryptoSheet = ({
             keyExtractor={(item) => item.id}
             renderItem={(item) => (
               <CryptoListItem
+                backgroundColor={theme.colors.white}
                 textColor={theme.colors.darkGray}
                 onPress={onItemPress}
                 crypto={item.item}

@@ -1,5 +1,5 @@
 import BottomSheet from "@gorhom/bottom-sheet";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getCryptos } from "src/actions/get-cryptos";
 import { AddButton } from "src/components/add-button/add-button";
 import { Screen } from "src/components/screen/screen";
@@ -11,7 +11,7 @@ import {
   CryptoListContainer,
   HeaderContainer,
 } from "./home-styles";
-import { addUserCrypto } from "src/store/app/app-store";
+import { addUserCrypto, removeUserCrypto } from "src/store/app/app-store";
 import { Crypto } from "src/entities/crypto";
 import { FlatList, Keyboard } from "react-native";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
@@ -37,6 +37,14 @@ export const HomeScreen = () => {
   function openCryptoSearch() {
     bottomSheetRef.current?.expand();
   }
+
+  const onDismiss = useCallback((crypto: Crypto) => {
+    dispatch(removeUserCrypto(crypto));
+    Toast.show("Crypto successfully removed", {
+      position: Toast.positions.BOTTOM,
+      duration: Toast.durations.SHORT,
+    });
+  }, []);
 
   function closeCryptoSearch() {
     setTimeout(() => {
@@ -72,12 +80,15 @@ export const HomeScreen = () => {
       </HeaderContainer>
       <CryptoListContainer>
         <FlatList
+          showsVerticalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => (
             <Separator backgroundColor={theme.colors.secondaryDarkGray} />
           )}
           renderItem={(item) => (
             <CryptoListItem
+              shouldSwipe
+              onDismiss={onDismiss}
               onPress={(item) => console.log("my crypto", item)}
               crypto={item.item}
             />
