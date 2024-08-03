@@ -1,23 +1,30 @@
 import BottomSheet from "@gorhom/bottom-sheet";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, Keyboard } from "react-native";
+import Toast from "react-native-root-toast";
 import { getCryptos } from "src/actions/get-cryptos";
 import { AddButton } from "src/components/add-button/add-button";
+import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Screen } from "src/components/screen/screen";
 import { SearchCryptoSheet } from "src/components/search-cryptos-sheet/search-crypto-sheet";
+import { Separator } from "src/components/separator/separator";
 import { Text } from "src/components/text/text";
+import { Crypto } from "src/entities/crypto";
 import { useAppDispatch, useAppSelector } from "src/hooks/store-hook";
+import { RootStackParamList } from "src/navigation/app-navigator";
+import { addUserCrypto, removeUserCrypto } from "src/store/app/app-store";
 import {
   CryptoBottomSheet,
   CryptoListContainer,
   HeaderContainer,
 } from "./home-styles";
-import { addUserCrypto, removeUserCrypto } from "src/store/app/app-store";
-import { Crypto } from "src/entities/crypto";
-import { FlatList, Keyboard } from "react-native";
-import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
-import { Separator } from "src/components/separator/separator";
-import Toast from "react-native-root-toast";
-export const HomeScreen = () => {
+
+type NavigationProps = NativeStackScreenProps<RootStackParamList, "Home">;
+
+type Props = NavigationProps & {};
+
+export const HomeScreen = ({ navigation, route }: Props) => {
   const [searchText, setSearchText] = useState("");
 
   const dispatch = useAppDispatch();
@@ -72,6 +79,10 @@ export const HomeScreen = () => {
     dispatch(addUserCrypto(crypto));
   }
 
+  function onListItemPress(crypto: Crypto) {
+    navigation.navigate("CryptoDetails", { id: crypto.id });
+  }
+
   return (
     <Screen>
       <HeaderContainer>
@@ -89,7 +100,7 @@ export const HomeScreen = () => {
             <CryptoListItem
               shouldSwipe
               onDismiss={onDismiss}
-              onPress={(item) => console.log("my crypto", item)}
+              onPress={onListItemPress}
               crypto={item.item}
             />
           )}

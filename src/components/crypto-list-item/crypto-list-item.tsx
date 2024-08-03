@@ -31,11 +31,12 @@ import { Dimensions } from "react-native";
 
 type Props = {
   crypto: Crypto;
-  onPress: (crypto: Crypto) => void;
+  onPress?: (crypto: Crypto) => void;
   textColor?: string;
   onDismiss?: (crypto: Crypto) => void;
   backgroundColor?: string;
   shouldSwipe?: boolean;
+  showTrailingContent?: boolean;
 };
 
 const USDollarFormatter = new Intl.NumberFormat("en-US", {
@@ -61,6 +62,7 @@ export const CryptoListItem = ({
   onDismiss,
   backgroundColor,
   shouldSwipe = false,
+  showTrailingContent = true,
 }: Props) => {
   const theme = useAppSelector((state) => state.theme);
   const [assets] = useAssets([require("src/assets/images/icon.png")]);
@@ -141,7 +143,10 @@ export const CryptoListItem = ({
           <Container
             backgroundColor={backgroundColor ?? theme.colors.darkGray}
             height={ITEM_HEIGHT}
-            onPress={() => onPress(crypto)}
+            disabled={isNil(onPress)}
+            onPress={() => {
+              if (onPress) onPress(crypto);
+            }}
           >
             <LeadingItemContainer>
               <Image
@@ -159,20 +164,22 @@ export const CryptoListItem = ({
                 </LeadingItemSubtitle>
               </LeadingItemContentContainer>
             </LeadingItemContainer>
-            <TrailingItemContentContainer>
-              <TrailingItemTitle color={textColor}>
-                {USDollarFormatter.format(crypto.priceUsd)}
-              </TrailingItemTitle>
-              <TrailingItemSubtitle
-                color={
-                  crypto.changePercent24Hr > 0
-                    ? theme.colors.lightGreen
-                    : theme.colors.red
-                }
-              >
-                {`${percentFormatter.format(crypto.changePercent24Hr)}%`}
-              </TrailingItemSubtitle>
-            </TrailingItemContentContainer>
+            {showTrailingContent && (
+              <TrailingItemContentContainer>
+                <TrailingItemTitle color={textColor}>
+                  {USDollarFormatter.format(crypto.priceUsd)}
+                </TrailingItemTitle>
+                <TrailingItemSubtitle
+                  color={
+                    crypto.changePercent24Hr > 0
+                      ? theme.colors.lightGreen
+                      : theme.colors.red
+                  }
+                >
+                  {`${percentFormatter.format(crypto.changePercent24Hr)}%`}
+                </TrailingItemSubtitle>
+              </TrailingItemContentContainer>
+            )}
           </Container>
         </GestureContainer>
       </GestureDetector>
