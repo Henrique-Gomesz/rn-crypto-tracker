@@ -8,12 +8,14 @@ import {
 import { useAppSelector } from "src/hooks/store-hook";
 import { DismissKeyboard } from "../dismiss-keyboard/dismiss-keyboard";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { ScrollView } from "react-native";
 
 type Props = {
   children: React.ReactElement[] | React.ReactElement;
   onGoBack?: () => void;
   withHeader?: boolean;
   HeaderContent?: React.ReactElement;
+  shouldDismissKeyboard?: boolean;
 };
 
 export const Screen = ({
@@ -21,11 +23,12 @@ export const Screen = ({
   withHeader = false,
   onGoBack,
   HeaderContent,
+  shouldDismissKeyboard = true,
 }: Props) => {
   const theme = useAppSelector((state) => state.theme);
 
-  return (
-    <DismissKeyboard>
+  function renderContent() {
+    return (
       <ScreenContainer backgroundColor={theme.colors.primary}>
         <ExpoStatusBar style={theme.statusBarStyle} />
         {withHeader && (
@@ -42,6 +45,12 @@ export const Screen = ({
         )}
         {children}
       </ScreenContainer>
-    </DismissKeyboard>
-  );
+    );
+  }
+
+  if (shouldDismissKeyboard) {
+    return <DismissKeyboard>{renderContent()}</DismissKeyboard>;
+  }
+
+  return renderContent();
 };

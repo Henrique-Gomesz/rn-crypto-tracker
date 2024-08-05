@@ -3,7 +3,7 @@ export interface Crypto {
   symbol: string;
   name: string;
   supply: number;
-  maxSupply: number;
+  maxSupply: number | null;
   marketCapUsd: number;
   volumeUsd24Hr: number;
   priceUsd: number;

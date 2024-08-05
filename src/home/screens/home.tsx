@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, Keyboard } from "react-native";
 import Toast from "react-native-root-toast";
 import { getCryptos } from "src/actions/get-cryptos";
-import { AddButton } from "src/components/add-button/add-button";
+import { Button } from "src/components/button/button";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Screen } from "src/components/screen/screen";
 import { SearchCryptoSheet } from "src/components/search-cryptos-sheet/search-crypto-sheet";
@@ -87,7 +87,7 @@ export const HomeScreen = ({ navigation, route }: Props) => {
     <Screen>
       <HeaderContainer>
         <Text size={20}>{"RN Crypto Tracker"}</Text>
-        <AddButton onPress={openCryptoSearch} />
+        <Button text="+" onPress={openCryptoSearch} />
       </HeaderContainer>
       <CryptoListContainer>
         <FlatList

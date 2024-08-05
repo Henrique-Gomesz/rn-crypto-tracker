@@ -1,4 +1,3 @@
-import { Crypto } from "src/entities/crypto";
 import { CryptoHistory } from "src/entities/crypto-history";
 import { BASE_URL } from "src/utils/constants";
 
@@ -8,11 +7,11 @@ type GetCryptoHistoryResponse = {
 
 export async function fetchCryptoHistory(
   cryptoId: string,
-  interval?: string
+  interval: string = "d1"
 ): Promise<CryptoHistory[]> {
   try {
     const response = await fetch(
-      `${BASE_URL}/v2/assets/${cryptoId}/history?interval=d1`,
+      `${BASE_URL}/v2/assets/${cryptoId}/history?interval=${interval}`,
       {
         method: "GET",
       }
