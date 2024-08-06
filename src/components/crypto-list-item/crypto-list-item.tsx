@@ -28,6 +28,7 @@ import {
   TrailingItemTitle,
 } from "./crypto-list-tem.styles";
 import { Dimensions } from "react-native";
+import { percentFormatter, USDollarFormatter } from "src/utils/constants";
 
 type Props = {
   crypto: Crypto;
@@ -38,16 +39,6 @@ type Props = {
   shouldSwipe?: boolean;
   showTrailingContent?: boolean;
 };
-
-const USDollarFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-const percentFormatter = new Intl.NumberFormat("en-US", {
-  style: "decimal",
-  maximumFractionDigits: 2,
-});
 
 const ITEM_HEIGHT = 70;
 
