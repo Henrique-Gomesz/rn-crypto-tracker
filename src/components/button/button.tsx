@@ -7,6 +7,7 @@ type Props = {
   text: string;
   size?: number;
   backgroundColor?: string;
+  textColor?: string;
 };
 
 export const Button = ({
@@ -14,6 +15,7 @@ export const Button = ({
   text,
   size = 24,
   backgroundColor,
+  textColor,
 }: Props) => {
   const theme = useAppSelector((state) => state.theme);
   return (
@@ -22,7 +24,7 @@ export const Button = ({
       borderColor={theme.colors.darkGreen}
       onPress={onPress}
     >
-      <Text size={size} color={theme.colors.lightGreen}>
+      <Text size={size} color={textColor ?? theme.colors.lightGreen}>
         {text}
       </Text>
     </ButtonContainer>

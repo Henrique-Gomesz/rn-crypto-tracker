@@ -21,8 +21,10 @@ export const ChangePercent = styled(Text)``;
 export const GraphButtonsContainer = styled(View)`
   flex-direction: row;
   justify-content: center;
-  gap: 16px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 `;
 
 export const CryptoDataSectionTitle = styled(Text).attrs({
@@ -41,4 +43,9 @@ export const CryptoDataItemScrollView = styled(ScrollView).attrs({
 })`
   flex: 1;
   margin-top: 16px;
+`;
+
+export const LoadingContainer = styled(View)`
+  flex: 1;
+  justify-content: center;
 `;

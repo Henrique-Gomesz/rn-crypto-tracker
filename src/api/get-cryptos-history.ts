@@ -14,6 +14,7 @@ export async function fetchCryptoHistory(
       `${BASE_URL}/v2/assets/${cryptoId}/history?interval=${interval}`,
       {
         method: "GET",
+        cache: "force-cache",
       }
     );
 

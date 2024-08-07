@@ -3,7 +3,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, Keyboard } from "react-native";
 import Toast from "react-native-root-toast";
-import { getCryptos } from "src/actions/get-cryptos";
 import { Button } from "src/components/button/button";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Screen } from "src/components/screen/screen";
@@ -12,6 +11,7 @@ import { Separator } from "src/components/separator/separator";
 import { Text } from "src/components/text/text";
 import { Crypto } from "src/entities/crypto";
 import { useAppDispatch, useAppSelector } from "src/hooks/store-hook";
+import { useUpdateCryptoRoutines } from "src/hooks/update-crypto-routines-hook";
 import { RootStackParamList } from "src/navigation/app-navigator";
 import { addUserCrypto, removeUserCrypto } from "src/store/app/app-store";
 import {
@@ -24,8 +24,9 @@ type NavigationProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 type Props = NavigationProps & {};
 
-export const HomeScreen = ({ navigation, route }: Props) => {
+export const HomeScreen = ({ navigation }: Props) => {
   const [searchText, setSearchText] = useState("");
+  const { startGetCryptosRoutine, clearRoutines } = useUpdateCryptoRoutines();
 
   const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.theme);
@@ -34,7 +35,13 @@ export const HomeScreen = ({ navigation, route }: Props) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
-    dispatch(getCryptos());
+    navigation.addListener("focus", () => {
+      startGetCryptosRoutine();
+    });
+
+    return () => {
+      clearRoutines();
+    };
   }, []);
 
   function handleSearch(text: string) {
@@ -80,6 +87,7 @@ export const HomeScreen = ({ navigation, route }: Props) => {
   }
 
   function onListItemPress(crypto: Crypto) {
+    clearRoutines();
     navigation.navigate("CryptoDetails", { id: crypto.id });
   }
 

@@ -9,6 +9,7 @@ export async function fetchCryptos(): Promise<Crypto[]> {
   try {
     const response = await fetch(BASE_URL + "/v2/assets", {
       method: "GET",
+      cache: "force-cache",
     });
     const data = (await response.json()) as GetCryptosResponse;
 

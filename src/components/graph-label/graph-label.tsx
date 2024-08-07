@@ -1,11 +1,10 @@
-import React from "react";
-import { Dimensions } from "react-native";
+import React, { useMemo } from "react";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { USDollarFormatter } from "src/utils/constants";
+import { SCREEN_WIDTH, USDollarFormatter } from "src/utils/constants";
 import { Text } from "../text/text";
 
 type Props = {
@@ -15,13 +14,30 @@ type Props = {
   textColor: string;
 };
 
-export const GraphLabel = ({ arrayLength, index, textColor, value }: Props) => {
-  const location =
-    (index / arrayLength) * (Dimensions.get("window").width - 40) || 0;
+export const GraphLabel: React.FC<Props> = ({
+  arrayLength,
+  index,
+  textColor,
+  value,
+}) => {
+  const elementWidth = 120;
+
+  const initialLocation = useMemo(() => {
+    return (index / arrayLength) * SCREEN_WIDTH;
+  }, []);
+
   const translateX = useSharedValue(0);
 
-  const ContainerStyled = useAnimatedStyle(() => {
-    translateX.value = withTiming(Math.max(location - 40, 5));
+  const animatedStyle = useAnimatedStyle(() => {
+    let adjustedLocation = initialLocation - elementWidth / 2;
+
+    if (adjustedLocation < 0) {
+      adjustedLocation = 0;
+    } else if (adjustedLocation + elementWidth > SCREEN_WIDTH) {
+      adjustedLocation = SCREEN_WIDTH - elementWidth;
+    }
+
+    translateX.value = withTiming(adjustedLocation);
 
     return {
       transform: [{ translateX: translateX.value }],
@@ -29,7 +45,7 @@ export const GraphLabel = ({ arrayLength, index, textColor, value }: Props) => {
   });
 
   return (
-    <Animated.View style={ContainerStyled}>
+    <Animated.View style={[animatedStyle, { width: elementWidth }]}>
       <Text color={textColor}>{USDollarFormatter.format(value)}</Text>
     </Animated.View>
   );

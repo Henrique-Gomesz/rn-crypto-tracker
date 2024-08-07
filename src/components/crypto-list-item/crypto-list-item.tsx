@@ -28,7 +28,11 @@ import {
   TrailingItemTitle,
 } from "./crypto-list-tem.styles";
 import { Dimensions } from "react-native";
-import { percentFormatter, USDollarFormatter } from "src/utils/constants";
+import {
+  percentFormatter,
+  SCREEN_WIDTH,
+  USDollarFormatter,
+} from "src/utils/constants";
 
 type Props = {
   crypto: Crypto;
@@ -41,8 +45,6 @@ type Props = {
 };
 
 const ITEM_HEIGHT = 70;
-
-const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const TRANSLATE_X_THRESHOLD = -SCREEN_WIDTH * 0.1;
 
