@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { remove, update } from "lodash";
 import { Crypto } from "src/entities/crypto";
+import { sortByName } from "src/utils/sort-by-name";
 
 interface AppState {
   cryptos: Crypto[];
@@ -23,16 +24,7 @@ const appSlice = createSlice({
     },
     addUserCrypto: (state, action: PayloadAction<Crypto>) => {
       state.userCryptos.push(action.payload);
-      state.userCryptos.sort((a, b) => {
-        if (a.name < b.name) {
-          return -1;
-        }
-
-        if (a.name > b.name) {
-          return 1;
-        }
-        return 0;
-      });
+      state.userCryptos.sort((a, b) => sortByName(a.name, b.name));
     },
     updateUserCrypto: (state) => {
       state.userCryptos.forEach((item) => {

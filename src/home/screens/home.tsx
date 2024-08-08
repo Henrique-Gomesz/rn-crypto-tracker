@@ -26,6 +26,7 @@ type Props = NavigationProps & {};
 
 export const HomeScreen = ({ navigation }: Props) => {
   const [searchText, setSearchText] = useState("");
+
   const { startGetCryptosRoutine, clearRoutines } = useUpdateCryptoRoutines();
 
   const dispatch = useAppDispatch();
@@ -81,9 +82,11 @@ export const HomeScreen = ({ navigation }: Props) => {
       });
       return;
     }
-
-    closeCryptoSearch();
     dispatch(addUserCrypto(crypto));
+    Toast.show("Crypto successfully added!", {
+      position: Toast.positions.BOTTOM,
+      duration: 500,
+    });
   }
 
   function onListItemPress(crypto: Crypto) {

@@ -17,6 +17,7 @@ import {
   TitleContainer,
 } from "./search-crypto-sheet.styles";
 import { FlatList } from "react-native-gesture-handler";
+import { sortByName } from "src/utils/sort-by-name";
 
 type Props = {
   onClose: () => void;
@@ -32,15 +33,23 @@ export const SearchCryptoSheet = ({
   searchValue,
 }: Props) => {
   const cryptos = useAppSelector((state) => state.app.cryptos);
+  const userCryptos = useAppSelector((state) => state.app.userCryptos);
   const theme = useAppSelector((state) => state.theme);
 
   const queryData = useMemo(() => {
-    return cryptos.filter(
-      (crypto) =>
-        crypto.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        crypto.symbol.toLowerCase().includes(searchValue.toLowerCase())
-    );
+    // todo use chunk to create a pagination
+    return cryptos
+      .filter(
+        (crypto) =>
+          crypto.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          crypto.symbol.toLowerCase().includes(searchValue.toLowerCase())
+      )
+      .sort((a, b) => sortByName(a.name, b.name));
   }, [searchValue]);
+
+  function itemIsSelected(crypto: Crypto) {
+    return userCryptos.some((userCrypto) => userCrypto.id === crypto.id);
+  }
 
   return (
     <DismissKeyboard>
@@ -72,6 +81,7 @@ export const SearchCryptoSheet = ({
                 textColor={theme.colors.darkGray}
                 onPress={onItemPress}
                 crypto={item.item}
+                isSelected={itemIsSelected(item.item)}
               />
             )}
             data={isEmpty(searchValue) ? [] : queryData}

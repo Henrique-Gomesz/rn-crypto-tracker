@@ -6,6 +6,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SCREEN_WIDTH, USDollarFormatter } from "src/utils/constants";
 import { Text } from "../text/text";
+import { View } from "react-native";
 
 type Props = {
   value: number;
@@ -26,9 +27,7 @@ export const GraphLabel: React.FC<Props> = ({
     return (index / arrayLength) * SCREEN_WIDTH;
   }, []);
 
-  const translateX = useSharedValue(0);
-
-  const animatedStyle = useAnimatedStyle(() => {
+  const translateX = useMemo(() => {
     let adjustedLocation = initialLocation - elementWidth / 2;
 
     if (adjustedLocation < 0) {
@@ -37,16 +36,16 @@ export const GraphLabel: React.FC<Props> = ({
       adjustedLocation = SCREEN_WIDTH - elementWidth;
     }
 
-    translateX.value = withTiming(adjustedLocation);
-
-    return {
-      transform: [{ translateX: translateX.value }],
-    };
-  });
+    return adjustedLocation;
+  }, [initialLocation]);
 
   return (
-    <Animated.View style={[animatedStyle, { width: elementWidth }]}>
+    <View
+      style={{
+        transform: [{ translateX }],
+      }}
+    >
       <Text color={textColor}>{USDollarFormatter.format(value)}</Text>
-    </Animated.View>
+    </View>
   );
 };

@@ -1,7 +1,8 @@
 import { Image, ImageSource } from "expo-image";
-import React, { useCallback } from "react";
+import React from "react";
 import { Crypto } from "src/entities/crypto";
 import { getImageUrlBySymbol } from "src/utils/get-image-name";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useAssets } from "expo-asset";
 import { isEmpty, isNil } from "lodash";
@@ -13,6 +14,11 @@ import {
   withTiming,
 } from "react-native-reanimated";
 import { useAppSelector } from "src/hooks/store-hook";
+import {
+  percentFormatter,
+  SCREEN_WIDTH,
+  USDollarFormatter,
+} from "src/utils/constants";
 import { ListItemAction } from "../list-item-action/list-item-action";
 import {
   ActionsContainer,
@@ -23,16 +29,11 @@ import {
   LeadingItemSubtitle,
   LeadingItemTitle,
   ListItemContainer,
+  SelectedIconContainer,
   TrailingItemContentContainer,
   TrailingItemSubtitle,
   TrailingItemTitle,
 } from "./crypto-list-tem.styles";
-import { Dimensions } from "react-native";
-import {
-  percentFormatter,
-  SCREEN_WIDTH,
-  USDollarFormatter,
-} from "src/utils/constants";
 
 type Props = {
   crypto: Crypto;
@@ -42,6 +43,7 @@ type Props = {
   backgroundColor?: string;
   shouldSwipe?: boolean;
   showTrailingContent?: boolean;
+  isSelected?: boolean;
 };
 
 const ITEM_HEIGHT = 70;
@@ -56,6 +58,7 @@ export const CryptoListItem = ({
   backgroundColor,
   shouldSwipe = false,
   showTrailingContent = true,
+  isSelected = false,
 }: Props) => {
   const theme = useAppSelector((state) => state.theme);
   const [assets] = useAssets([require("src/assets/images/icon.png")]);
@@ -171,6 +174,15 @@ export const CryptoListItem = ({
                 >
                   {`${percentFormatter.format(crypto.changePercent24Hr)}%`}
                 </TrailingItemSubtitle>
+                {isSelected && (
+                  <SelectedIconContainer>
+                    <MaterialIcons
+                      name="check"
+                      color={theme.colors.lightGreen}
+                      size={24}
+                    />
+                  </SelectedIconContainer>
+                )}
               </TrailingItemContentContainer>
             )}
           </Container>

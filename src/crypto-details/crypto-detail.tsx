@@ -1,31 +1,19 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { first, isEqual, last } from "lodash";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { GraphPoint, LineGraph } from "react-native-graph";
-import { fetchCryptoHistory as fetchCryptoHistoryApi } from "src/api/get-cryptos-history";
-import { Button } from "src/components/button/button";
+import React, { useCallback, useEffect } from "react";
 import { CryptoDataItem } from "src/components/crypto-data-item/crypto-data-item";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Screen } from "src/components/screen/screen";
-import { Text } from "src/components/text/text";
-import { Crypto } from "src/entities/crypto";
-import { CryptoHistory } from "src/entities/crypto-history";
 import { useAppSelector } from "src/hooks/store-hook";
+import { useUpdateCryptoRoutines } from "src/hooks/update-crypto-routines-hook";
 import { RootStackParamList } from "src/navigation/app-navigator";
+import { DEFAULT_CRYPTO, USDollarFormatter } from "src/utils/constants";
 import {
-  ChangePercent,
   CryptoDataContainer,
   CryptoDataItemScrollView,
   CryptoDataSectionTitle,
-  GraphButtonsContainer,
-  LoadingContainer,
-  Price,
-  PriceContainer,
 } from "./crypto-details.styles";
-import { GraphLabel } from "src/components/graph-label/graph-label";
-import { percentFormatter, USDollarFormatter } from "src/utils/constants";
-import { Loading } from "src/components/loading/loading";
-import { useUpdateCryptoRoutines } from "src/hooks/update-crypto-routines-hook";
+import { useCryptoGraph } from "./hooks/use-crypto-graph";
+import { useCryptoHistory } from "./hooks/use-crypto-history";
 
 type NavigationProps = NativeStackScreenProps<
   RootStackParamList,
@@ -34,202 +22,38 @@ type NavigationProps = NativeStackScreenProps<
 
 type Props = NavigationProps & {};
 
-const DEFAULT_CRYPTO: Crypto = {
-  id: "",
-  symbol: "",
-  name: "",
-  supply: 0,
-  maxSupply: 0,
-  marketCapUsd: 0,
-  volumeUsd24Hr: 0,
-  priceUsd: 0,
-  changePercent24Hr: 0,
-  vwap24Hr: 0,
-  explorer: "",
-};
-
-const GRAPH_BUTTON_LABEL_MAPPER = new Map<string, string>([
-  ["m1", "1d"],
-  ["m15", "1w"],
-  ["h1", "1m"],
-  ["h6", "6m"],
-  ["d1", "1y"],
-]);
-
 export const CryptoDetailsScreen = ({ navigation, route }: Props) => {
-  const theme = useAppSelector((state) => state.theme);
-  const [isLoading, setIsLoading] = useState(false);
-  const [cryptoHistoryData, setCryptoHistoryData] = useState<CryptoHistory[]>(
-    []
-  );
   const crypto =
     useAppSelector((state) =>
       state.app.cryptos.find((crypto) => crypto.id === route.params.id)
     ) ?? DEFAULT_CRYPTO;
 
-  const [currencyValue, setCurrencyValue] = useState(crypto.priceUsd);
+  const { fetchCryptoHistory, history, isLoading } = useCryptoHistory({
+    cryptoId: crypto.id,
+  });
 
-  const [selectedInterval, setSelectedInterval] = useState("m1");
   const { startUpdateCryptoRoutine, clearRoutines } = useUpdateCryptoRoutines();
+
+  const { displayGraph, selectedInterval } = useCryptoGraph({
+    crypto,
+    history,
+    isLoading,
+    onChangeInterval: onGraphIntervalChange,
+  });
 
   useEffect(() => {
     fetchCryptoHistory(selectedInterval);
     startUpdateCryptoRoutine(crypto.id);
   }, []);
 
-  const fetchCryptoHistory = useCallback((interval?: string): void => {
-    handleLoading();
-    fetchCryptoHistoryApi(crypto.id, interval)
-      .then((data) => {
-        setCryptoHistoryData(data);
-      })
-      .catch(() => {
-        setCryptoHistoryData([]);
-      })
-      .finally(() => {
-        handleLoading();
-      });
-  }, []);
-
-  function handleLoading() {
-    setIsLoading((prev) => !prev);
-  }
-
-  const onClickGraphButton = useCallback(
-    (interval: string) => {
-      if (!isEqual(interval, selectedInterval)) {
-        setSelectedInterval(interval);
-        fetchCryptoHistory(interval);
-      }
-    },
-    [selectedInterval]
-  );
-
-  const renderGraphButtons = useCallback(() => {
-    const buttons = [];
-    for (const item of GRAPH_BUTTON_LABEL_MAPPER) {
-      const interval = item[0];
-      const label = item[1];
-
-      buttons.push(
-        <Button
-          textColor={theme.colors.white}
-          backgroundColor={
-            isEqual(interval, selectedInterval) ? "gray" : undefined
-          }
-          key={interval}
-          onPress={() => onClickGraphButton(interval)}
-          size={18}
-          text={label.toUpperCase()}
-        />
-      );
-    }
-    return buttons;
-  }, [selectedInterval]);
-
-  const onGestureEnd = useCallback(() => {
-    setCurrencyValue(crypto.priceUsd);
-  }, []);
-
-  const onPointerSelected = (point: GraphPoint) => {
-    setCurrencyValue(point.value);
-  };
-
-  const points = useMemo(
-    () =>
-      cryptoHistoryData
-        .map((item) => {
-          return {
-            date: item.date,
-            value: Number(item.priceUsd),
-          };
-        })
-        .sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        ),
-    [cryptoHistoryData]
-  );
-
-  const changePercent = useMemo(() => {
-    const firstValue = first(points)?.value ?? 1;
-    const lastValue = last(points)?.value ?? 1;
-
-    return ((lastValue - firstValue) / firstValue) * 100;
-  }, [points]);
-
-  const maxValue = useMemo(() => {
-    const value = Math.max(...points.map((item) => item.value));
-    const index = points.findIndex((item) => item.value === value);
-
-    return {
-      value,
-      index,
-    };
-  }, [points]);
-
-  const minValue = useMemo(() => {
-    const value = Math.min(...points.map((item) => item.value));
-    const index = points.findIndex((item) => item.value === value);
-
-    return {
-      value,
-      index,
-    };
-  }, [points]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setCurrencyValue(crypto.priceUsd);
-    }, 100);
-  }, [cryptoHistoryData]);
-
-  function goBack() {
+  const goBack = useCallback(() => {
     clearRoutines();
     navigation.goBack();
-  }
+  }, []);
 
-  const renderGraph = useCallback(() => {
-    return (
-      <LineGraph
-        gradientFillColors={[
-          theme.colors.darkGreen,
-          theme.colors.darkGreen,
-          theme.colors.darkGray,
-        ]}
-        TopAxisLabel={() => (
-          <GraphLabel
-            arrayLength={points.length}
-            index={maxValue.index}
-            textColor={theme.colors.lightGreen}
-            value={maxValue.value}
-          />
-        )}
-        BottomAxisLabel={() => (
-          <GraphLabel
-            arrayLength={points.length}
-            index={minValue.index}
-            textColor={theme.colors.red}
-            value={minValue.value}
-          />
-        )}
-        onPointSelected={onPointerSelected}
-        onGestureEnd={onGestureEnd}
-        panGestureDelay={50}
-        enableFadeInMask
-        style={{
-          alignSelf: "center",
-          width: "100%",
-          aspectRatio: 1.4,
-        }}
-        points={points}
-        enablePanGesture={true}
-        enableIndicator
-        animated={true}
-        indicatorPulsating
-        color={theme.colors.lightGreen}
-      />
-    );
-  }, [points, maxValue, minValue]);
+  function onGraphIntervalChange(interval: string) {
+    fetchCryptoHistory(interval);
+  }
 
   return (
     <Screen
@@ -240,28 +64,7 @@ export const CryptoDetailsScreen = ({ navigation, route }: Props) => {
       onGoBack={goBack}
       withHeader
     >
-      {isLoading ? (
-        <LoadingContainer>
-          <Loading color={theme.colors.lightGreen} isLoading={isLoading} />
-        </LoadingContainer>
-      ) : (
-        <>
-          <PriceContainer>
-            <Price>{USDollarFormatter.format(currencyValue)}</Price>
-            <ChangePercent
-              color={
-                changePercent > 0 ? theme.colors.lightGreen : theme.colors.red
-              }
-            >
-              {`${percentFormatter.format(
-                changePercent
-              )}% (${selectedInterval})`}
-            </ChangePercent>
-          </PriceContainer>
-          {renderGraph()}
-        </>
-      )}
-      <GraphButtonsContainer>{renderGraphButtons()}</GraphButtonsContainer>
+      {displayGraph()}
       <CryptoDataContainer>
         <CryptoDataSectionTitle>
           {"Crypto Market Details (24h)"}

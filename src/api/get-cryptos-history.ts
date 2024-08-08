@@ -30,6 +30,7 @@ export async function fetchCryptoHistory(
       return cryptoHistory;
     });
   } catch (error) {
+    console.log(error);
     return [];
   }
 }

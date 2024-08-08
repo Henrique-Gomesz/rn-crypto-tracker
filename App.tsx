@@ -1,4 +1,5 @@
 import "./gesture-handler";
+
 import { DefaultTheme, NavigationContainer } from "@react-navigation/native";
 import React from "react";
 import { RootSiblingParent } from "react-native-root-siblings";

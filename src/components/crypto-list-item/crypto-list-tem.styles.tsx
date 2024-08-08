@@ -55,3 +55,8 @@ export const ActionsContainer = styled(Animated.View)<{ height: number }>`
   justify-content: center;
   height: ${({ height }) => height}px;
 `;
+
+export const SelectedIconContainer = styled(View)`
+  justify-content: flex-end;
+  align-items: flex-end;
+`;
