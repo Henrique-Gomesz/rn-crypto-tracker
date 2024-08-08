@@ -2,8 +2,10 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { isEmpty } from "lodash";
 import React, { useMemo } from "react";
 
+import { FlatList } from "react-native-gesture-handler";
 import { Crypto } from "src/entities/crypto";
 import { useAppSelector } from "src/hooks/store-hook";
+import { sortByName } from "src/utils/sort-by-name";
 import { CryptoListItem } from "../crypto-list-item/crypto-list-item";
 import { DismissKeyboard } from "../dismiss-keyboard/dismiss-keyboard";
 import { Separator } from "../separator/separator";
@@ -16,8 +18,6 @@ import {
   Title,
   TitleContainer,
 } from "./search-crypto-sheet.styles";
-import { FlatList } from "react-native-gesture-handler";
-import { sortByName } from "src/utils/sort-by-name";
 
 type Props = {
   onClose: () => void;
@@ -37,7 +37,6 @@ export const SearchCryptoSheet = ({
   const theme = useAppSelector((state) => state.theme);
 
   const queryData = useMemo(() => {
-    // todo use chunk to create a pagination
     return cryptos
       .filter(
         (crypto) =>

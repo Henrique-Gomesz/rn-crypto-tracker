@@ -5,7 +5,7 @@ import { getImageUrlBySymbol } from "src/utils/get-image-name";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useAssets } from "expo-asset";
-import { isEmpty, isNil } from "lodash";
+import { isEmpty, isNil, noop } from "lodash";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import {
   runOnJS,
@@ -34,6 +34,7 @@ import {
   TrailingItemSubtitle,
   TrailingItemTitle,
 } from "./crypto-list-tem.styles";
+import { useCryptoListItemAnimation } from "./hooks/use-crypto-list-item-animation";
 
 type Props = {
   crypto: Crypto;
@@ -63,6 +64,13 @@ export const CryptoListItem = ({
   const theme = useAppSelector((state) => state.theme);
   const [assets] = useAssets([require("src/assets/images/icon.png")]);
 
+  const {
+    animatedIconContainerStyle,
+    animatedItemContainerStyle,
+    animatedStyle,
+    tap,
+  } = useCryptoListItemAnimation(crypto, shouldSwipe, onDismiss ?? noop);
+
   function getImageSource(): ImageSource | string {
     const imageSource = {
       uri: getImageUrlBySymbol(crypto.symbol),
@@ -77,53 +85,6 @@ export const CryptoListItem = ({
 
     return imageSource;
   }
-
-  const translateX = useSharedValue(0);
-  const itemHeight = useSharedValue(ITEM_HEIGHT);
-
-  const tap = Gesture.Pan()
-    .failOffsetY([-5, 5])
-    .activeOffsetX([-5, 5])
-    .onUpdate((event) => {
-      if (event.translationX < 0 && shouldSwipe)
-        translateX.value = event.translationX;
-    })
-    .onEnd(() => {
-      const shouldDismiss = translateX.value < TRANSLATE_X_THRESHOLD;
-
-      if (shouldDismiss) {
-        translateX.value = withTiming(-SCREEN_WIDTH);
-        itemHeight.value = withTiming(0, undefined, (isFinished) => {
-          if (isFinished && onDismiss) {
-            runOnJS(onDismiss)(crypto);
-          }
-        });
-      } else {
-        translateX.value = withTiming(0);
-      }
-    });
-
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value }],
-    };
-  });
-
-  const animatedIconContainerStyle = useAnimatedStyle(() => {
-    const opacity = withTiming(
-      translateX.value < TRANSLATE_X_THRESHOLD ? 1 : 0
-    );
-    return {
-      opacity,
-      height: itemHeight.value,
-    };
-  });
-
-  const animatedItemContainerStyle = useAnimatedStyle(() => {
-    return {
-      height: itemHeight.value,
-    };
-  });
 
   return (
     <ListItemContainer style={animatedItemContainerStyle}>

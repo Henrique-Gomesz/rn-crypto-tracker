@@ -1,39 +1,31 @@
-import BottomSheet from "@gorhom/bottom-sheet";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, Keyboard } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { FlatList } from "react-native";
 import Toast from "react-native-root-toast";
 import { Button } from "src/components/button/button";
 import { CryptoListItem } from "src/components/crypto-list-item/crypto-list-item";
 import { Screen } from "src/components/screen/screen";
-import { SearchCryptoSheet } from "src/components/search-cryptos-sheet/search-crypto-sheet";
 import { Separator } from "src/components/separator/separator";
 import { Text } from "src/components/text/text";
 import { Crypto } from "src/entities/crypto";
 import { useAppDispatch, useAppSelector } from "src/hooks/store-hook";
 import { useUpdateCryptoRoutines } from "src/hooks/update-crypto-routines-hook";
 import { RootStackParamList } from "src/navigation/app-navigator";
-import { addUserCrypto, removeUserCrypto } from "src/store/app/app-store";
-import {
-  CryptoBottomSheet,
-  CryptoListContainer,
-  HeaderContainer,
-} from "./home-styles";
+import { removeUserCrypto } from "src/store/app/app-store";
+import { useCryptoListBottomSheet } from "../hooks/use-crypto-list-bottom-sheet";
+import { CryptoListContainer, HeaderContainer } from "./home-styles";
 
 type NavigationProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
 type Props = NavigationProps & {};
 
 export const HomeScreen = ({ navigation }: Props) => {
-  const [searchText, setSearchText] = useState("");
-
   const { startGetCryptosRoutine, clearRoutines } = useUpdateCryptoRoutines();
+  const { openBottomSheet, renderBottomSheet } = useCryptoListBottomSheet();
 
   const dispatch = useAppDispatch();
   const theme = useAppSelector((state) => state.theme);
   const userCryptos = useAppSelector((state) => state.app.userCryptos);
-
-  const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
     navigation.addListener("focus", () => {
@@ -45,14 +37,6 @@ export const HomeScreen = ({ navigation }: Props) => {
     };
   }, []);
 
-  function handleSearch(text: string) {
-    setSearchText(text);
-  }
-
-  function openCryptoSearch() {
-    bottomSheetRef.current?.expand();
-  }
-
   const onDismiss = useCallback((crypto: Crypto) => {
     dispatch(removeUserCrypto(crypto));
     Toast.show("Crypto successfully removed", {
@@ -60,34 +44,6 @@ export const HomeScreen = ({ navigation }: Props) => {
       duration: Toast.durations.SHORT,
     });
   }, []);
-
-  function closeCryptoSearch() {
-    setTimeout(() => {
-      Keyboard.dismiss();
-    }, 200);
-    handleSearch("");
-
-    bottomSheetRef.current?.forceClose();
-  }
-
-  function cryptoAlreadyTracked(crypto: Crypto) {
-    return userCryptos.some((userCrypto) => userCrypto.id === crypto.id);
-  }
-
-  function onItemPress(crypto: Crypto) {
-    if (cryptoAlreadyTracked(crypto)) {
-      Toast.show("Crypto already tracked!", {
-        position: Toast.positions.BOTTOM,
-        duration: Toast.durations.SHORT,
-      });
-      return;
-    }
-    dispatch(addUserCrypto(crypto));
-    Toast.show("Crypto successfully added!", {
-      position: Toast.positions.BOTTOM,
-      duration: 500,
-    });
-  }
 
   function onListItemPress(crypto: Crypto) {
     clearRoutines();
@@ -98,7 +54,7 @@ export const HomeScreen = ({ navigation }: Props) => {
     <Screen>
       <HeaderContainer>
         <Text size={20}>{"RN Crypto Tracker"}</Text>
-        <Button text="+" onPress={openCryptoSearch} />
+        <Button text="+" onPress={openBottomSheet} />
       </HeaderContainer>
       <CryptoListContainer>
         <FlatList
@@ -118,14 +74,7 @@ export const HomeScreen = ({ navigation }: Props) => {
           data={userCryptos}
         />
       </CryptoListContainer>
-      <CryptoBottomSheet ref={bottomSheetRef}>
-        <SearchCryptoSheet
-          searchValue={searchText}
-          handleSearch={handleSearch}
-          onItemPress={onItemPress}
-          onClose={closeCryptoSearch}
-        />
-      </CryptoBottomSheet>
+      {renderBottomSheet()}
     </Screen>
   );
 };
