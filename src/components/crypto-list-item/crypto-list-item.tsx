@@ -1,24 +1,15 @@
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Image, ImageSource } from "expo-image";
 import React from "react";
 import { Crypto } from "src/entities/crypto";
 import { getImageUrlBySymbol } from "src/utils/get-image-name";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 import { useAssets } from "expo-asset";
 import { isEmpty, isNil, noop } from "lodash";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+
+import { GestureDetector } from "react-native-gesture-handler";
 import { useAppSelector } from "src/hooks/store-hook";
-import {
-  percentFormatter,
-  SCREEN_WIDTH,
-  USDollarFormatter,
-} from "src/utils/constants";
+import { percentFormatter, USDollarFormatter } from "src/utils/constants";
 import { ListItemAction } from "../list-item-action/list-item-action";
 import {
   ActionsContainer,
@@ -49,8 +40,6 @@ type Props = {
 
 const ITEM_HEIGHT = 70;
 
-const TRANSLATE_X_THRESHOLD = -SCREEN_WIDTH * 0.1;
-
 export const CryptoListItem = ({
   crypto,
   onPress,
@@ -71,9 +60,9 @@ export const CryptoListItem = ({
     tap,
   } = useCryptoListItemAnimation(crypto, shouldSwipe, onDismiss ?? noop);
 
-  function getImageSource(): ImageSource | string {
+  function getImageSource(symbol: string): ImageSource | string {
     const imageSource = {
-      uri: getImageUrlBySymbol(crypto.symbol),
+      uri: getImageUrlBySymbol(symbol),
     };
 
     if (isEmpty(imageSource.uri)) {
@@ -84,6 +73,12 @@ export const CryptoListItem = ({
     }
 
     return imageSource;
+  }
+
+  function getPlaceholderImage() {
+    if (assets) {
+      return assets[0].uri;
+    }
   }
 
   return (
@@ -107,9 +102,10 @@ export const CryptoListItem = ({
           >
             <LeadingItemContainer>
               <Image
+                placeholder={getPlaceholderImage()}
                 cachePolicy={"disk"}
                 style={{ width: 52, height: 52 }}
-                source={getImageSource()}
+                source={getImageSource(crypto.symbol)}
                 contentFit="cover"
               />
               <LeadingItemContentContainer>

@@ -14,6 +14,7 @@ import { RootStackParamList } from "src/navigation/app-navigator";
 import { removeUserCrypto } from "src/store/app/app-store";
 import { useCryptoListBottomSheet } from "../hooks/use-crypto-list-bottom-sheet";
 import { CryptoListContainer, HeaderContainer } from "./home-styles";
+import { getCryptos } from "src/actions/get-cryptos";
 
 type NavigationProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -28,6 +29,7 @@ export const HomeScreen = ({ navigation }: Props) => {
   const userCryptos = useAppSelector((state) => state.app.userCryptos);
 
   useEffect(() => {
+    dispatch(getCryptos());
     navigation.addListener("focus", () => {
       startGetCryptosRoutine();
     });
