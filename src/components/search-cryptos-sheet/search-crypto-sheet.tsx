@@ -1,6 +1,6 @@
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { isEmpty } from "lodash";
-import React, { useMemo } from "react";
+import { chunk, isEmpty } from "lodash";
+import React, { useMemo, useState } from "react";
 
 import { FlatList } from "react-native-gesture-handler";
 import { Crypto } from "src/entities/crypto";
@@ -35,8 +35,10 @@ export const SearchCryptoSheet = ({
   const cryptos = useAppSelector((state) => state.app.cryptos);
   const userCryptos = useAppSelector((state) => state.app.userCryptos);
   const theme = useAppSelector((state) => state.theme);
+  const [chunkIndex, setChunkIndex] = useState(0);
+  const [data, setData] = useState<Crypto[]>([]);
 
-  const queryData = useMemo(() => {
+  const queryValue = useMemo(() => {
     return cryptos
       .filter(
         (crypto) =>
@@ -45,6 +47,20 @@ export const SearchCryptoSheet = ({
       )
       .sort((a, b) => sortByName(a.name, b.name));
   }, [searchValue]);
+
+  const chunkData = useMemo(() => {
+    const data = chunk(queryValue, 10);
+    setData(data[0]);
+    setChunkIndex(0);
+    return data;
+  }, [queryValue]);
+
+  const nextChunk = () => {
+    if (chunkIndex < chunkData.length - 1) {
+      setChunkIndex((prev) => prev + 1);
+      setData([...data, ...chunkData[chunkIndex + 1]]);
+    }
+  };
 
   function itemIsSelected(crypto: Crypto) {
     return userCryptos.some((userCrypto) => userCrypto.id === crypto.id);
@@ -74,6 +90,7 @@ export const SearchCryptoSheet = ({
             )}
             scrollEnabled={true}
             keyExtractor={(item) => item.id}
+            onEndReached={nextChunk}
             renderItem={(item) => (
               <CryptoListItem
                 backgroundColor={theme.colors.white}
@@ -83,7 +100,7 @@ export const SearchCryptoSheet = ({
                 isSelected={itemIsSelected(item.item)}
               />
             )}
-            data={isEmpty(searchValue) ? [] : queryData}
+            data={isEmpty(searchValue) ? [] : data}
           />
         </CryptoListContainer>
       </Container>
