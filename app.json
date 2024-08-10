@@ -27,7 +27,7 @@
       [
         "expo-asset",
         {
-          "assets": ["./src/assets/image/icon.png"]
+          "assets": ["./src/assets/images/icon.png"]
         }
       ]
     ]
