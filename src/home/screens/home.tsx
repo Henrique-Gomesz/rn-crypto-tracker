@@ -15,6 +15,7 @@ import { removeUserCrypto } from "src/store/app/app-store";
 import { useCryptoListBottomSheet } from "../hooks/use-crypto-list-bottom-sheet";
 import { CryptoListContainer, HeaderContainer } from "./home-styles";
 import { getCryptos } from "src/actions/get-cryptos";
+import analytics from "@react-native-firebase/analytics";
 
 type NavigationProps = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -29,6 +30,11 @@ export const HomeScreen = ({ navigation }: Props) => {
   const userCryptos = useAppSelector((state) => state.app.userCryptos);
 
   useEffect(() => {
+    analytics().logScreenView({
+      screen_name: "Home",
+      screen_class: "HomeScreen",
+    });
+
     dispatch(getCryptos());
     navigation.addListener("focus", () => {
       startGetCryptosRoutine();

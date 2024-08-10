@@ -14,6 +14,7 @@ import {
 } from "./crypto-details.styles";
 import { useCryptoGraph } from "./hooks/use-crypto-graph";
 import { useCryptoHistory } from "./hooks/use-crypto-history";
+import analytics from "@react-native-firebase/analytics";
 
 type NavigationProps = NativeStackScreenProps<
   RootStackParamList,
@@ -42,6 +43,11 @@ export const CryptoDetailsScreen = ({ navigation, route }: Props) => {
   });
 
   useEffect(() => {
+    analytics().logScreenView({
+      screen_name: "CryptoDetails",
+      screen_class: "CryptoDetailsScreen",
+    });
+
     fetchCryptoHistory(selectedInterval);
     startUpdateCryptoRoutine(crypto.id);
   }, []);
