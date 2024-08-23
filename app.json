@@ -12,13 +12,15 @@
       "backgroundColor": "#302D40"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.henriquegomes.rncryptotracker"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#302D40"
-      }
+      },
+      "package": "com.henriquegomes.rncryptotracker"
     },
     "web": {
       "favicon": "./assets/favicon.png"
